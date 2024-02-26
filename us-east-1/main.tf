@@ -104,9 +104,18 @@ output "vpc_id" {
   value = aws_vpc.vpc1.id
 }
 
+data "aws_ami" "ubuntu_x86_ami" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
+}
+
 resource "aws_instance" "manu-terraform-instance-1" {
-  ami           = "ami-0c7217cdde317cfec" # Replace with your desired AMI ID
-  instance_type = "t2.micro"              # Example instance type
+  ami           = data.aws_ami.ubuntu_x86_ami.id # Replace with your desired AMI ID
+  instance_type = "t2.micro"                     # Example instance type
 
   key_name               = "terraform-keypair"           # Replace with your key pair name
   subnet_id              = aws_subnet.public_subnet_1.id # Replace with your subnet ID
