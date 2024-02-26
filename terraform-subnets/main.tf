@@ -1,4 +1,3 @@
-Data source to retrieve existing subnets filtered by tags
 data "aws_subnet" "selected_subnets" {
   filter {
     name   = "tag:Name"
