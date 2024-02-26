@@ -1,0 +1,4 @@
+**.terraform
+**.tfplan
+**.hcl
+.DS_Store 
