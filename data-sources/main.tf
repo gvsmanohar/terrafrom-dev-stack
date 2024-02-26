@@ -136,9 +136,11 @@ data "aws_ami" "ubuntu_arm_ami" {
   #   }
 }
 
+#### Create two instances on with x86 arch ami and other with arm arch ami (usjng data sources)
+
 resource "aws_instance" "manu-terraform-instance-x86_64" {
   ami           = data.aws_ami.ubuntu_x86_ami.id # Replace with your desired AMI ID
-  instance_type = "t2.micro"                     # Example instance type
+  instance_type = "t2.micro"
 
   key_name               = "terraform-keypair"           # Replace with your key pair name
   subnet_id              = aws_subnet.public_subnet_1.id # Replace with your subnet ID
@@ -146,7 +148,7 @@ resource "aws_instance" "manu-terraform-instance-x86_64" {
 
   root_block_device {
     volume_size = 8     # Size of the root volume in GB
-    volume_type = "gp2" # Example volume type (General Purpose SSD)
+    volume_type = "gp2" # volume type (General Purpose SSD)
   }
   tags = {
     Name = "manu-terraform-inst-x86_64"
@@ -155,18 +157,35 @@ resource "aws_instance" "manu-terraform-instance-x86_64" {
 
 resource "aws_instance" "manu-terraform-instance-arm64" {
   ami           = data.aws_ami.ubuntu_arm_ami.id # Replace with your desired AMI ID
-  instance_type = "t4g.nano"                     # Example instance type
+  instance_type = "t4g.nano"
 
   key_name               = "terraform-keypair"           # Replace with your key pair name
   subnet_id              = aws_subnet.public_subnet_2.id # Replace with your subnet ID
   vpc_security_group_ids = [aws_security_group.terraformSecurityGroup.id]
 
   root_block_device {
-    volume_size = 8     # Size of the root volume in GB
-    volume_type = "gp2" # Example volume type (General Purpose SSD)
+    volume_size = 8 # Size of the root volume in GB
+    volume_type = "gp2"
   }
   tags = {
     Name = "manu-terraform-inst-arm64"
   }
 }
 
+
+### Create 10 instances with same config and tags with count values and print outputs of ids
+
+
+# resource "aws_instance" "manu-terraform-inst" {
+#   count         = 10
+#   ami           = data.aws_ami.ubuntu_x86_ami.id
+#   instance_type = "t2.micro"
+
+#   tags = {
+#     Name = "manu-instance-${count.index + 1}"
+#   }
+# }
+
+# output "instance_ids" {
+#   value = aws_instance.manu-terraform-inst[*].id
+# }
