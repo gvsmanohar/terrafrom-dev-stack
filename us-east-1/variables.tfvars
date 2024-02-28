@@ -19,5 +19,3 @@ ubuntu_ami_name_filter = "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-
 
 # Instance tags
 instance_name_tag = "manu-terraform-inst-1"
-
-# Other variables as needed
