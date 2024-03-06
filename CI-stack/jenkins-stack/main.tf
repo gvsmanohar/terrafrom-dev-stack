@@ -154,7 +154,7 @@ resource "aws_instance" "jenkins" {
   # }
 
   tags = {
-    Name = "jenkins-instance"
+    Name = "manu-jenkins-instance"
   }
 }
 
