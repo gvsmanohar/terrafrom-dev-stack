@@ -130,19 +130,12 @@ resource "aws_instance" "webserver" {
   subnet_id              = aws_subnet.webserver_public_subnet.id
   vpc_security_group_ids = [aws_security_group.webserver_security_group.id]
 
-  user_data = <<-EOF
-                #!/bin/bash
-                sudo apt update
-                sudo apt install openjdk-17-jre-headless
-            EOF
-
-
-  #   connection {
-  #     type        = "ssh"
-  #     user        = "ubuntu"
-  #     private_key = ""
-  #     host        = aws_instance.webserver.public_ip
-  #   }
+  connection {
+    type        = "ssh"
+    user        = "ubuntu"
+    private_key = file("/Users/manohar/Desktop/Study/DevOps/ClassNotes/terrafrom-dev-stack/keypairs/webserver-keypair.pem")
+    host        = aws_instance.webserver.public_ip
+  }
 
   tags = {
     Name = "webserver-instance"
