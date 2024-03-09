@@ -73,12 +73,21 @@ resource "aws_security_group" "jenkins_security_group" {
   }
 
   ingress {
-    description = "SSH for jenkins"
-    from_port   = var.ingress_jenkins_default_port
-    to_port     = var.ingress_jenkins_default_port
+    description = "nginx_port"
+    from_port   = var.nginx_port
+    to_port     = var.nginx_port
     protocol    = var.ssh_http_protocol
     cidr_blocks = ["0.0.0.0/0"]
   }
+  ingress {
+    description = "ssl_port"
+    from_port   = var.ssl_port
+    to_port     = var.ssl_port
+    protocol    = var.ssh_http_protocol
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+
 
   egress {
     description = "To allow outbound traffic"
