@@ -11,6 +11,10 @@ variable "ssh_ingress_port" {
   type = number
 }
 
+variable "ingress_jenkins_default_port" {
+  type = number
+}
+
 variable "ssh_http_protocol" {
   type = string
 }

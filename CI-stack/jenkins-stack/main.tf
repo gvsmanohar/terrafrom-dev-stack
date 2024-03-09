@@ -2,6 +2,20 @@ provider "aws" {
   region = var.region
 }
 
+
+# # Data source to fetch IAM user details
+# data "aws_iam_user" "existing_user" {
+#   user_name = "manu-1" # Replace with the name of your existing IAM user
+# }
+
+# # Resource to attach Route 53 IAM policy to the existing IAM user
+# resource "aws_iam_policy_attachment" "route53_policy_attachment" {
+#   name       = "route53-policy-attachment"                       # Specify a name for the policy attachment
+#   users      = [data.aws_iam_user.existing_user.id]              # Attach to the existing IAM user
+#   policy_arn = "arn:aws:iam::aws:policy/AmazonRoute53FullAccess" # ARN of Route 53 IAM policy
+# }
+
+
 data "aws_key_pair" "jenkins" {
   filter {
     name   = "tag:name"
@@ -54,6 +68,14 @@ resource "aws_security_group" "jenkins_security_group" {
     description = "SSH for jenkins"
     from_port   = var.ssh_ingress_port
     to_port     = var.ssh_ingress_port
+    protocol    = var.ssh_http_protocol
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "SSH for jenkins"
+    from_port   = var.ingress_jenkins_default_port
+    to_port     = var.ingress_jenkins_default_port
     protocol    = var.ssh_http_protocol
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -158,3 +180,15 @@ resource "aws_instance" "jenkins" {
   }
 }
 
+data "aws_route53_zone" "ninhogen_zone" {
+  name         = "ninhogen.com."
+  private_zone = false
+}
+
+resource "aws_route53_record" "manu_jenkins_record" {
+  zone_id = data.aws_route53_zone.ninhogen_zone.zone_id
+  name    = "manu.jenkins.ninhogen.com"
+  type    = "A"
+  ttl     = 300
+  records = [aws_instance.jenkins.public_ip]
+}
