@@ -86,6 +86,13 @@ resource "aws_security_group" "jenkins_security_group" {
     protocol    = var.ssh_http_protocol
     cidr_blocks = ["0.0.0.0/0"]
   }
+  ingress {
+    description = "jenkins_build_port"
+    from_port   = var.jenkins_build_port
+    to_port     = var.jenkins_build_port
+    protocol    = var.ssh_http_protocol
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
 
 
@@ -99,7 +106,7 @@ resource "aws_security_group" "jenkins_security_group" {
 
   # Adding a tag to the security group
   tags = {
-    Name = "jenkins-security-group"
+    Name = "jenkinsSG_manu"
   }
 }
 
@@ -112,6 +119,9 @@ resource "aws_subnet" "jenkins_public_subnet" {
   vpc_id                  = aws_vpc.vpc_main.id
   cidr_block              = var.jenkins_public_subnet_cidr
   map_public_ip_on_launch = true
+  tags = {
+    Name = "jenkins_public_subnet"
+  }
 }
 
 # Internet gateway
@@ -155,7 +165,7 @@ data "aws_ami" "ubuntu_x86_ami" {
 # Creating a AWS instance
 resource "aws_instance" "jenkins" {
 
-  ami                    = data.aws_ami.ubuntu_x86_ami.id
+  ami                    = "ami-0dfb1520a8026d466"
   instance_type          = var.instance_type
   key_name               = data.aws_key_pair.jenkins.key_name
   subnet_id              = aws_subnet.jenkins_public_subnet.id

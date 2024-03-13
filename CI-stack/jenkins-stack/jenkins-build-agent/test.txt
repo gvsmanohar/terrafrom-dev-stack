@@ -1,0 +1,28 @@
+# Steps to install Jenkins Agent using JNLP connection on Ubuntu 20.04 Focal Fossa
+#
+# * create an Agent node on the web GUI: https://wiki.jenkins.io/display/JENKINS/Step+by+step+guide+to+set+up+master+and+agent+machines+on+Windows
+
+# * $ sudo apt-get install -y openjdk-14-jre-headless
+# * $ sudo adduser jenkins
+# * $ curl http://jenkins-master.internal/jnlpJars/agent.jar -o /home/jenkins/agent.jar
+# * create systemd service: place this file in /lib/systemd/system/jenkins-agent.service
+# * $ sudo systemctl enable myservice
+# * $ sudo systemctl start jenkins-agent
+
+[Unit]
+Description=Jenkins Agent
+After=network.target
+Requires=network.target
+
+[Service]
+Type=simple
+# optional file to provide environment variables (e.g. http_proxy, https_proxy):
+#EnvironmentFile=/etc/sysconfig/jenkins
+# TODO: adapt -jnlpUrl und -secret, as found on the web GUI: Jenkins > Nodes > ...
+ExecStart=java -jar agent.jar -url https://manu.jenkins.ninhogen.com/ -secret a2e1b0f188dedbdf31b22a6c571e066da01d50744a51326331ef1f32d1298463 -name "jenkins-build-agent-1" -workDir "/var/jenkins-home/"
+Restart=always
+User=jenkins
+RestartSec=20
+
+[Install]
+WantedBy=multi-user.target

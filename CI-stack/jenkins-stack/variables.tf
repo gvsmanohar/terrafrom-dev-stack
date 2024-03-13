@@ -19,6 +19,10 @@ variable "ssl_port" {
   type = number
 }
 
+variable "jenkins_build_port" {
+  type = number
+}
+
 
 variable "ssh_http_protocol" {
   type = string

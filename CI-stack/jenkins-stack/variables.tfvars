@@ -8,4 +8,5 @@ vpc_cidr_block              = "10.0.0.0/16"
 jenkins_public_subnet_cidr  = "10.0.1.0/24"
 jenkins_private_subnet_cidr = "10.0.2.0/24"
 ubuntu_ami_name_filter      = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
-instance_type               = "t2.medium"
+instance_type               = "t3.medium"
+jenkins_build_port          = 50000
