@@ -1,36 +1,86 @@
+data "aws_key_pair" "nexus" {
+  filter {
+    name   = "tag:name"
+    values = ["nexus"]
+  }
+}
 
-resource "aws_instance" "jenkins" {
+data "aws_subnet" "jenkins_public_subnet" {
+  filter {
+    name   = "cidr"
+    values = ["10.0.1.0/24"]
+  }
+}
 
-  ami                    = ""
-  instance_type          = var.instance_type
-  key_name               = data.aws_key_pair.jenkins.key_name
-  subnet_id              = aws_subnet.jenkins_public_subnet.id
-  vpc_security_group_ids = [aws_security_group.jenkins_security_group.id]
+data "aws_vpc" "MainVPC" {
+  filter {
+    name   = "cidr"
+    values = ["10.0.0.0/16"]
+  }
+}
 
+resource "aws_security_group" "nexus_security_group" {
+  vpc_id = data.aws_vpc.MainVPC.id
 
+  ingress {
+    description = "ssh for nexus"
+    from_port   = var.ssh_ingress_port
+    to_port     = var.ssh_ingress_port
+    protocol    = var.ssh_http_protocol
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
-  # connection {
-  #   type        = "ssh"
-  #   user        = "ubuntu"
-  #   private_key = file("/Users/manohar/Desktop/Study/DevOps/ClassNotes/terrafrom-dev-stack/keypairs/jenkins-keypair.pem")
-  #   host        = aws_instance.jenkins.public_ip
-  # }
-  # provisioner "remote-exec" {
-  #   # Installing Git into the system.  Here in this inline list,
-  #   # multiple commands can be passed which 
-  #   # are required to run in the remote system.
-  #   inline = [
-  #     "#!/bin/bash",
-  #     "sudo apt update",
-  #     "echo 'Y' | sudo apt install openjdk-17-jre-headless",
-  #     "sudo wget -O /usr/share/keyrings/jenkins-keyring.asc https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key",
-  #     "echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null",
-  #     "sudo apt-get update",
-  #     "echo 'Y' | sudo apt-get install jenkins",
-  #   ]
-  # }
+  ingress {
+    description = "http for nexus"
+    from_port   = var.http_ingress_port
+    to_port     = var.http_ingress_port
+    protocol    = var.ssh_http_protocol
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    description = "To allow outbound traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   tags = {
-    Name = "manu-jenkins-instance"
+    Name = "NexusSG-manu"
+  }
+}
+
+# data "aws_security_group" "jenkinsSG" {
+#   filter {
+#     name   = "tag:name"
+#     values = ["terraform-20240309175147425600000001"]
+#   }
+# }
+
+resource "aws_security_group_rule" "jenkins_to_nexus" {
+  type              = "ingress"
+  from_port         = var.http_ingress_port
+  to_port           = var.http_ingress_port
+  protocol          = var.ssh_http_protocol
+  security_group_id = aws_security_group.nexus_security_group.id
+
+  # Source security group rule
+  source_security_group_id = "sg-0de075353b3bd2cdd"
+}
+
+
+
+
+resource "aws_instance" "nexus" {
+
+  ami                    = var.centos_ami_id
+  instance_type          = var.instance_type
+  key_name               = data.aws_key_pair.nexus.key_name
+  subnet_id              = data.aws_subnet.jenkins_public_subnet.id
+  vpc_security_group_ids = [aws_security_group.nexus_security_group.id]
+
+  tags = {
+    Name = "manu-nexus-instance"
   }
 }
